@@ -14,13 +14,16 @@ public class Snake {
     public Direction direction = Direction.RIGHT;
 
     public double ogWaitBetweenUpdates = 0.1f;
-    public double waitTimeLeft = ogWaitBetweenUpdates; 
+    public double waitTimeLeft = ogWaitBetweenUpdates;
 
-    public Snake(int size, double startX, double startY, double bodyWidth, double bodyHeight) {
+    public Rect background;
+
+    public Snake(int size, double startX, double startY, double bodyWidth, double bodyHeight, Rect background) {
 
         this.size = size;
         this.bodyWidth = bodyWidth;
         this.bodyHeight = bodyHeight;
+        this.background = background;
 
         for (int i = 0; i < size; i++) {
 
@@ -90,7 +93,7 @@ public class Snake {
     public boolean intersectingWithSelf() {
 
         Rect headR = body[head];
-        return intersectingWithRect(headR);
+        return intersectingWithRect(headR) || intersectingWithScreenBoundaries(headR);
     }
 
     public boolean intersectingWithRect(Rect rect) {
@@ -106,9 +109,38 @@ public class Snake {
         return (r1.x >= r2.x && r1.x + r1.width <= r2.x + r2.width && r1.y >= r2.y && r1.y + r1.height <= r2.y + r2.height); 
     }
 
+    public boolean intersectingWithScreenBoundaries(Rect head) {
+
+        return (head.x < background.x || (head.x + head.width) > background.x + background.width || head.y < background.y || (head.y + head.height) > background.y + background.height);
+    }
+
     public void grow() {
 
-        System.out.println("Growing");
+        double newX = 0;
+        double newY = 0;
+
+        if (direction == Direction.RIGHT) {
+
+            newX = body[tail].x - bodyWidth;
+            newY = body[tail].y;
+        } else if (direction == Direction.LEFT) {
+
+            newX = body[tail].x + bodyWidth;
+            newY = body[tail].y;
+        } else if (direction == Direction.UP) {
+
+            newX = body[tail].x;
+            newY = body[tail].y + bodyHeight;
+        } else if (direction == Direction.DOWN) {
+
+            newX = body[tail].x;
+            newY = body[tail].y - bodyHeight;
+        }
+
+        Rect newBodyPiece = new Rect(newX, newY, bodyWidth, bodyHeight);
+
+        tail = (tail - 1) % body.length;
+        body[tail] = newBodyPiece;
     }
 
     public void draw(Graphics2D g2) {
