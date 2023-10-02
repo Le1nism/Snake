@@ -1,19 +1,18 @@
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 
 import javax.swing.JFrame;
 
 public class Window extends JFrame implements Runnable {
 
+    public static Window window = null;
     public boolean isRunning;
 
-    public static int currentState;
-    public static Scene currentScene;
+    public int currentState;
+    public Scene currentScene;
 
-    public static KeyListener keyListener = new KeyListener();
-    public static MouseListener mouseListener = new MouseListener();
+    public KeyListener keyListener = new KeyListener();
+    public MouseListener mouseListener = new MouseListener();
 
     public Window(int width, int height, String title) {
 
@@ -22,35 +21,43 @@ public class Window extends JFrame implements Runnable {
         setResizable(false);
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addKeyListener(Window.keyListener);
+        addKeyListener(keyListener);
         addMouseListener(mouseListener);
         addMouseMotionListener(mouseListener);
 
         isRunning = true;
-        Window.changeState(0);
+        changeState(0);
     }
 
-    public static void close() {
+    public static Window getWindow() {
 
-        
+        if (Window.window == null) 
+            Window.window = new Window(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, Constants.SCREEN_TITLE);
+
+        return Window.window;
     }
 
-    public static void changeState(int newState) {
+    public void close() {
 
-        Window.currentState = newState;
-        switch (Window.currentState) {
+        isRunning = false;
+    }
+
+    public void changeState(int newState) {
+
+        currentState = newState;
+        switch (currentState) {
 
             case 0:
-                Window.currentScene = new MenuScene(Window.keyListener, Window.mouseListener);
+                currentScene = new MenuScene(keyListener, mouseListener);
                 break;
             
             case 1:
-                Window.currentScene = new GameScene();
+                currentScene = new GameScene();
                 break;
 
             default:
                 System.out.println("Unknown scene");
-                Window.currentScene = null;
+                currentScene = null;
         }
     }
 
@@ -67,7 +74,6 @@ public class Window extends JFrame implements Runnable {
 
     public void draw(Graphics g) {
 
-        Graphics2D g2 = (Graphics2D)g;
         currentScene.draw(g);
     }
 
@@ -89,6 +95,8 @@ public class Window extends JFrame implements Runnable {
 
             e.printStackTrace();
         }
+
+        this.dispose();
     }
     
 }
