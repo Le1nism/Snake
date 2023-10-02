@@ -52,7 +52,7 @@ public class Window extends JFrame implements Runnable {
                 break;
             
             case 1:
-                currentScene = new GameScene();
+                currentScene = new GameScene(keyListener);
                 break;
 
             default:
